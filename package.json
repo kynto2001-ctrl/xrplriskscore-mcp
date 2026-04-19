@@ -1,0 +1,24 @@
+{
+  "name": "@xrplriskscore/mcp",
+  "version": "1.0.0",
+  "description": "MCP server for xrplriskscore.ai — exposes XRPL wallet risk scoring as Claude tools",
+  "type": "module",
+  "main": "src/server.mjs",
+  "bin": {
+    "xrplriskscore-mcp":       "./bin/server.mjs",
+    "xrplriskscore-mcp-setup": "./bin/setup.mjs"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "setup": "node bin/setup.mjs"
+  },
+  "keywords": ["xrpl", "mcp", "claude", "risk-scoring", "x402"],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "zod": "^3.23.8"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
