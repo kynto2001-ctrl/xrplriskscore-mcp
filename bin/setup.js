@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Setup script: registers the xrplriskscore MCP server in Claude Desktop config.
-// Run: npx @xrplriskscore/mcp-setup   OR   node bin/setup.mjs
+// Run: npx -p @xrplriskscore/mcp xrplriskscore-mcp-setup   OR   node bin/setup.js
 
 import fs   from "node:fs";
 import path from "node:path";
@@ -8,7 +8,7 @@ import os   from "node:os";
 import { fileURLToPath } from "node:url";
 
 const __dirname  = path.dirname(fileURLToPath(import.meta.url));
-const serverPath = path.resolve(__dirname, "server.mjs");
+const serverPath = path.resolve(__dirname, "..", "src", "server.mjs");
 
 // Locate claude_desktop_config.json
 function findConfigPath() {
