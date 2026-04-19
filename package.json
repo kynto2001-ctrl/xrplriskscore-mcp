@@ -5,15 +5,30 @@
   "type": "module",
   "main": "src/server.mjs",
   "bin": {
-    "xrplriskscore-mcp":       "./bin/server.mjs",
-    "xrplriskscore-mcp-setup": "./bin/setup.mjs"
+    "xrplriskscore-mcp": "bin/server.js",
+    "xrplriskscore-mcp-setup": "bin/setup.js"
   },
   "scripts": {
     "start": "node src/server.mjs",
     "setup": "node bin/setup.mjs"
   },
-  "keywords": ["xrpl", "mcp", "claude", "risk-scoring", "x402"],
+  "keywords": [
+    "xrpl",
+    "mcp",
+    "claude",
+    "risk-scoring",
+    "x402"
+  ],
+  "author": "xrplriskscore.ai <contact@xrplriskscore.ai>",
   "license": "MIT",
+  "homepage": "https://xrplriskscore.ai",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kynto2001-ctrl/xrplriskscore-mcp.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.2",
     "zod": "^3.23.8"
