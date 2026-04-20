@@ -28,12 +28,15 @@ Each scoring tool returns a verdict: `ALLOW`, `CHALLENGE`, or `BLOCK`.
 
 The free demo tier is enabled by default — good for testing and light use.
 
-For full paid analysis, set the `XRPL_SEED` environment variable and use the [`@xrplriskscore/client`](https://www.npmjs.com/package/@xrplriskscore/client) SDK. Paid requests are settled on XRPL mainnet via the x402 protocol through t54's facilitator.
+For full paid analysis, set the `XRPL_SEED` environment variable and use the [`@xrplriskscore/client`](https://www.npmjs.com/package/@xrplriskscore/client) SDK. Paid requests are settled on XRPL mainnet via the x402 protocol.
 
 Paid endpoints:
 - `/score` — full risk assessment (1 XRP)
 - `/prescore` — lightweight pre-score (0.1 XRP)
 - `/rwa-check` — RWA compliance check (0.5 XRP)
+- `/credential-check` — Permissioned Domain credential screening (0.5 XRP)
+- `/escrow-check` — XLS-85 Token Escrow counterparty screening (0.5 XRP)
+- `POST /score-batch` — batch 10/25/50 wallets at 20% discount (8/20/40 XRP)
 
 ## How it works
 
