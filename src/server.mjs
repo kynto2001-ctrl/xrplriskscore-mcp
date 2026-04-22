@@ -3,7 +3,7 @@
 // @xrplriskscore/mcp — MCP server for xrplriskscore.ai
 //
 // Tools:
-//   check_xrpl_wallet_risk         — full 21-signal risk score (demo)
+//   check_xrpl_wallet_risk         — full 23-signal risk score (demo)
 //   quick_xrpl_prescore            — fast 3-signal pre-check (demo)
 //   explain_xrpl_risk_score        — explain a score result
 //   check_xrpl_rwa_compliance      — RWA compliance check (demo)
@@ -85,7 +85,7 @@ const server = new McpServer({ name: "xrplriskscore", version: "1.0.0" });
 // ── Tool 1: check_xrpl_wallet_risk ──────────────────────────
 server.tool(
   "check_xrpl_wallet_risk",
-  "Check any XRPL wallet address for risk before sending XRP. Returns ALLOW/CHALLENGE/BLOCK verdict with 21 on-chain signals including OFAC sanctions screening and known scam database lookup. Use this before any XRPL payment to protect against fraud.",
+  "Check any XRPL wallet address for risk before sending XRP. Returns ALLOW/CHALLENGE/BLOCK verdict with 23 on-chain signals including OFAC sanctions screening and known scam database lookup. Use this before any XRPL payment to protect against fraud.",
   { walletAddress: z.string().describe("XRPL wallet address (starts with r, 25-35 chars)") },
   async ({ walletAddress }) => {
     if (!walletAddress?.startsWith("r") || walletAddress.length < 25) {
@@ -167,7 +167,7 @@ server.tool(
       `Balance:        ${sig.balanceXRP     ?? "?"} XRP`,
       `New account:    ${sig.isNewAccount   ? "⚠️  yes (< 30 days)"   : "✓ no"}`,
       "",
-      data.note ?? "For full 21-signal analysis, use check_xrpl_wallet_risk.",
+      data.note ?? "For full 23-signal analysis, use check_xrpl_wallet_risk.",
     ].join("\n") }] };
   }
 );
@@ -201,10 +201,10 @@ server.tool(
     }
 
     lines.push("", "── Recommended action ──────────────────────────", actionForVerdict(verdict, riskScore));
-    lines.push("", "── 21 signals checked ──────────────────────────",
+    lines.push("", "── 23 signals checked ──────────────────────────",
       "Account age, balance, velocity, counterparty diversity, offer cancel ratio,",
       "wash trading, fan-out, dormancy, round number bias, bot timing, rapid outflow,",
-      "OFAC sanctions (Chainalysis), known scam database.",
+      "OFAC sanctions (Chainalysis), known scam database, NFT offer dump, memo phishing.",
       "", "Source: xrplriskscore.ai  |  XRPL Mainnet data"
     );
     return { content: [{ type: "text", text: lines.join("\n") }] };
@@ -323,7 +323,7 @@ server.tool(
     "── xrplriskscore.ai Endpoints ──────────────────────────────",
     "",
     "PAID (x402 protocol — no subscription, pay per call):",
-    "  GET  /score/{wallet}            1.0 XRP  — 21-signal risk score",
+    "  GET  /score/{wallet}            1.0 XRP  — 23-signal risk score",
     "  GET  /prescore/{wallet}         0.1 XRP  — 3-signal fast pre-check",
     "  GET  /rwa-check/{wallet}        0.5 XRP  — RWA compliance check",
     "  GET  /credential-check/{wallet} 0.5 XRP  — Credential eligibility (XLS-80d)",
