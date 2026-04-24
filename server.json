@@ -3,7 +3,7 @@
   "name": "io.github.kynto2001-ctrl/xrplriskscore-mcp",
   "title": "XRPL Wallet Risk Score",
   "description": "XRPL wallet risk scoring for AI agents. Returns ALLOW/CHALLENGE/BLOCK verdicts.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "repository": {
     "url": "https://github.com/kynto2001-ctrl/wallet-risk-service",
     "source": "github"
@@ -12,7 +12,7 @@
     {
       "registryType": "npm",
       "identifier": "@xrplriskscore/mcp",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "transport": {
         "type": "stdio"
       }
