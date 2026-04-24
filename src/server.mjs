@@ -10,6 +10,7 @@
 //   check_xrpl_credential_eligibility — credential screening (demo)
 //   check_xrpl_escrow_counterparty — escrow counterparty screening (demo)
 //   list_xrpl_risk_endpoints       — list all endpoints and pricing
+//   check_xrpl_compliance_bundle   — unified risk + RWA + credential bundle (paid, 3 XRP)
 //
 // Transport: stdio (standard MCP)
 // Demo tools use the free /demo/* endpoints (3 calls/IP/24h).
@@ -348,7 +349,84 @@ server.tool(
   ].join("\n") }] })
 );
 
+// ── Tool 8: check_xrpl_compliance_bundle ────────────────────
+server.tool(
+  "check_xrpl_compliance_bundle",
+  "Run a full compliance bundle on an XRPL wallet — combines risk scoring, RWA compliance, and credential eligibility into one call. Returns an overall_verdict of PASS, REVIEW, or BLOCK plus the full results of all three checks. Use this before onboarding a wallet, before releasing funds, or any time you need a complete picture of a wallet's compliance status. Costs 3 XRP via x402 on the paid tier.",
+  { walletAddress: z.string().describe("XRPL wallet address to check (starts with r)") },
+  async ({ walletAddress }) => {
+    if (!walletAddress?.startsWith("r") || walletAddress.length < 25) {
+      return { content: [{ type: "text", text: "❌ Invalid XRPL wallet address. Must start with 'r' and be 25-35 characters." }] };
+    }
+
+    let data;
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), API_TIMEOUT);
+    try {
+      const res = await fetch(`${BASE_URL}/compliance-bundle`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body:    JSON.stringify({ wallet: walletAddress }),
+        signal:  ctrl.signal,
+      });
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`);
+      }
+      data = await res.json();
+    } catch (err) {
+      return { content: [{ type: "text", text: `❌ Compliance bundle unavailable: ${err.message}` }] };
+    } finally {
+      clearTimeout(timer);
+    }
+
+    if (data.error) return { content: [{ type: "text", text: `❌ ${data.error}` }] };
+
+    const banner =
+      data.overall_verdict === "PASS"   ? "✅ PASS — All compliance checks cleared for this wallet." :
+      data.overall_verdict === "REVIEW" ? "⚠️ REVIEW — One or more checks need attention before proceeding." :
+      data.overall_verdict === "BLOCK"  ? "🚫 BLOCK — This wallet failed compliance checks. Do not proceed." :
+                                          `Overall verdict: ${data.overall_verdict ?? "?"}`;
+
+    const rs  = data.risk_score             ?? {};
+    const rwa = data.rwa_compliance         ?? {};
+    const cr  = data.credential_eligibility ?? {};
+    const sum = data.summary                ?? {};
+
+    const riskLine =
+      rs.error      ? `ERROR — ${rs.message}` :
+      rs.riskScore != null
+        ? `${rs.riskScore}/100 (${rs.verdict ?? "?"})`
+        : (rs.verdict ?? "?");
+    const rwaLine =
+      rwa.error ? `ERROR — ${rwa.message}` :
+      (rwa.complianceVerdict ?? rwa.verdict ?? "?");
+    const credVerdict   = cr.verdict;
+    const credEligible  = cr.error ? null : credVerdict === "CREDENTIAL_READY";
+    const credLine =
+      cr.error             ? `ERROR — ${cr.message}` :
+      credEligible === null ? (credVerdict ?? "?") :
+                               `eligible ${credEligible ? "true" : "false"} (${credVerdict ?? "?"})`;
+
+    const lines = [
+      banner, "",
+      `Wallet:                ${data.wallet}`,
+      `Overall Verdict:       ${data.overall_verdict ?? "?"}`,
+      `Checks Passed:         ${sum.checks_passed ?? 0}/${sum.checks_total ?? 3}`,
+      "",
+      "── Results ─────────────────────────────────────",
+      `Risk Score:            ${riskLine}`,
+      `RWA Compliance:        ${rwaLine}`,
+      `Credential Eligibility: ${credLine}`,
+    ];
+
+    if (data.timestamp) lines.push("", `Generated at: ${data.timestamp}`);
+
+    return { content: [{ type: "text", text: lines.join("\n") }] };
+  }
+);
+
 // ─────────────────────────────────────────────────────────────
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error("xrplriskscore MCP server running — 7 tools available");
+console.error("XRPL Risk Scorer MCP Server running — 8 tools available");
