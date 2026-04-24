@@ -19,6 +19,10 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+const { version } = require("../package.json");
 
 const BASE_URL    = process.env.XRPLRISKSCORE_BASE_URL || "https://xrplriskscore.ai";
 const API_TIMEOUT = 15_000;
@@ -80,7 +84,7 @@ function actionForVerdict(verdict, riskScore) {
 }
 
 // ─────────────────────────────────────────────────────────────
-const server = new McpServer({ name: "xrplriskscore", version: "1.0.0" });
+const server = new McpServer({ name: "xrplriskscore", version });
 
 // ── Tool 1: check_xrpl_wallet_risk ──────────────────────────
 server.tool(

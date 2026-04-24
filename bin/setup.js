@@ -17,6 +17,17 @@ function findConfigPath() {
     return path.join(os.homedir(), "Library", "Application Support", "Claude", "claude_desktop_config.json");
   }
   if (platform === "win32") {
+    // Windows Store installs of Claude Desktop sandbox their AppData under
+    // %LOCALAPPDATA%\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude.
+    // Prefer that location when it exists; otherwise fall back to the
+    // standard %APPDATA%\Claude path used by the desktop installer.
+    const localAppData = process.env.LOCALAPPDATA || path.join(os.homedir(), "AppData", "Local");
+    const storeDir = path.join(localAppData, "Packages", "Claude_pzs8sxrjxfjjc", "LocalCache", "Roaming", "Claude");
+    if (fs.existsSync(storeDir)) {
+      console.log("   Detected Windows Store install of Claude Desktop.");
+      return path.join(storeDir, "claude_desktop_config.json");
+    }
+    console.log("   Using standard (non-Store) Claude Desktop install path.");
     const appData = process.env.APPDATA || path.join(os.homedir(), "AppData", "Roaming");
     return path.join(appData, "Claude", "claude_desktop_config.json");
   }
