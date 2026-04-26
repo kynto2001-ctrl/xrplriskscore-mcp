@@ -11,7 +11,7 @@
 //   check_xrpl_escrow_counterparty — escrow counterparty screening (demo)
 //   list_xrpl_risk_endpoints       — list all endpoints and pricing
 //   check_xrpl_compliance_bundle   — unified risk + RWA + credential bundle (paid, 3 XRP)
-//   provision_xrpl_wallet          — generate & fund a fresh XRPL wallet (paid, 2 XRP)
+//   provision_xrpl_wallet          — generate a fresh XRPL keypair (paid, 1 XRP — caller funds reserve)
 //
 // Transport: stdio (standard MCP)
 // Demo tools use the free /demo/* endpoints (3 calls/IP/24h).
@@ -430,7 +430,7 @@ server.tool(
 // ── Tool 9: provision_xrpl_wallet ───────────────────────────
 server.tool(
   "provision_xrpl_wallet",
-  "Provision a brand-new funded XRPL wallet for an AI agent or developer. Generates a fresh keypair, transfers 10 XRP to activate it on mainnet, and returns the wallet address, seed, and a LOW_RISK baseline score — all in one call. Use this when an agent needs a new XRPL wallet to start transacting, when setting up a new service wallet, or when a user asks for a fresh XRPL wallet. Costs 2 XRP via x402 on the paid tier. IMPORTANT: The seed phrase is shown only once — instruct the user to store it immediately and securely.",
+  "Generate a fresh XRPL wallet keypair instantly via x402. Returns the wallet address, seed, and public key in one call. You fund the 2 XRP mainnet reserve yourself from any wallet or exchange. Costs 1 XRP via x402. The seed is shown only once — store it immediately.",
   {
     confirmStore: z.boolean().describe("Must be true — confirms the caller understands the seed will be shown only once and must be stored securely before calling this tool"),
   },
@@ -463,33 +463,18 @@ server.tool(
     if (data.error) return { content: [{ type: "text", text: `❌ Provisioning failed: ${data.error}` }] };
 
     const w   = data.wallet   ?? {};
-    const f   = data.funding  ?? {};
-    const rs  = data.riskScore ?? {};
     const ins = data.instructions ?? {};
 
     const lines = [
-      "✅ New XRPL Wallet Provisioned Successfully", "",
-      "⚠️ STORE THIS SEED NOW — it will not be shown again.", "",
-      `Address:    ${w.address   ?? "?"}`,
-      `Seed:       ${w.seed      ?? "?"}`,
+      "✅ Fresh XRPL Wallet Generated", "",
+      "⚠️ STORE THIS SEED NOW — shown only once.", "",
+      `Address: ${w.address   ?? "?"}`,
+      `Seed: ${w.seed      ?? "?"}`,
       `Public Key: ${w.publicKey ?? "?"}`,
-      "",
-      "Funding:",
-      `  Reserve Met:  ${f.reserveMet  ?? "?"}`,
-      `  Amount Sent:  ${f.amountSent  ?? "?"} drops`,
-      `  TX Hash:      ${f.txHash      ?? "?"}`,
-      "",
-      `Risk Score: ${rs.verdict ?? "?"} — ${rs.message ?? "?"}`,
     ];
 
-    if (ins.nextStep) lines.push("", `Next step: ${ins.nextStep}`);
-
-    if (f.reserveMet === false) {
-      lines.push(
-        "",
-        `⚠️ Funding transfer failed — wallet created but may not be activated on mainnet. Send at least 2 XRP to ${w.address ?? "the address above"} manually to activate.`
-      );
-    }
+    if (ins.activation) lines.push("", `Next: ${ins.activation}`);
+    if (ins.nextStep)   lines.push("", ins.nextStep);
 
     return { content: [{ type: "text", text: lines.join("\n") }] };
   }

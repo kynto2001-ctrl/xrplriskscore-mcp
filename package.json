@@ -1,6 +1,6 @@
 {
   "name": "@xrplriskscore/mcp",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "mcpName": "io.github.kynto2001-ctrl/xrplriskscore-mcp",
   "description": "MCP server for xrplriskscore.ai — exposes XRPL wallet risk scoring as Claude tools",
   "type": "module",
